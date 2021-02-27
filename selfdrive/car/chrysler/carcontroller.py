@@ -13,6 +13,7 @@ class CarController():
     self.car_fingerprint = CP.carFingerprint
     self.gone_fast_yet = False
     self.steer_rate_limited = False
+    self.timer = 0;
 
     self.packer = CANPacker(dbc_name)
 
@@ -29,16 +30,27 @@ class CarController():
                                                    CS.out.steeringTorqueEps, CarControllerParams)
     self.steer_rate_limited = new_steer != apply_steer
 
-    moving_fast = CS.out.vEgo > CS.CP.minSteerSpeed  # for status message
+    moving_fast = CS.out.vEgo > CS.CP.minSteerSpeed
+
+    if enabled:
+      if self.timer < 10:
+        self.timer += 1
+      else:
+        self.timer = 10
+    else:
+      self.timer = 0
+
     if CS.out.vEgo > (CS.CP.minSteerSpeed - 0.5):  # for command high bit
-      self.gone_fast_yet = True
+      self.gone_fast_yet = True if self.timer == 10 else False
     elif self.car_fingerprint in (CAR.PACIFICA_2019_HYBRID, CAR.JEEP_CHEROKEE_2019):
       if CS.out.vEgo < (CS.CP.minSteerSpeed - 3.0):
         self.gone_fast_yet = False  # < 14.5m/s stock turns off this bit, but fine down to 13.5
-    lkas_active = moving_fast and enabled
+    lkas_active = moving_fast and enabled and (self.timer == 10)
 
     if not lkas_active:
       apply_steer = 0
+
+
 
     self.apply_steer_last = apply_steer
 
