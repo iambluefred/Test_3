@@ -46,10 +46,10 @@ class CarController():
 
     #*** control msgs ***
 
-    if pcm_cancel_cmd:
-      # TODO: would be better to start from frame_2b3
-      new_msg = create_wheel_buttons(self.packer, self.ccframe, cancel=True)
-      can_sends.append(new_msg)
+   # if pcm_cancel_cmd:
+   #   # TODO: would be better to start from frame_2b3
+   #   new_msg = create_wheel_buttons(self.packer, self.ccframe, cancel=True)
+   #   can_sends.append(new_msg)
 
     # LKAS_HEARTBIT is forwarded by Panda so no need to send it here.
     # frame is 100Hz (0.01s period)
@@ -61,7 +61,7 @@ class CarController():
         can_sends.append(new_msg)
         self.hud_count += 1
 
-    new_msg = create_lkas_command(self.packer, int(apply_steer), self.gone_fast_yet, frame)
+    new_msg = create_lkas_command(self.packer, int(apply_steer), enabled, self.gone_fast_yet, frame)
     can_sends.append(new_msg)
 
     self.ccframe += 1
