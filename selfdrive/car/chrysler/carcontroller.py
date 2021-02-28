@@ -50,7 +50,10 @@ class CarController():
     if not lkas_active:
       apply_steer = 0
 
-    self.steer_type = int(1) if enabled and CS.out.vEgo < 18. else int(0)
+    if enabled and CS.out.vEgo < 18.:
+      self.steer_type = int(1)
+    else:
+      self.steer_type = int(0)
 
     self.apply_steer_last = apply_steer
 
