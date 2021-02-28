@@ -33,19 +33,19 @@ class CarController():
     moving_fast = CS.out.vEgo > CS.CP.minSteerSpeed
 
     if enabled:
-      if self.timer < 75:
+      if self.timer < 99:
         self.timer += 1
       else:
-        self.timer = 75
+        self.timer = 99
     else:
       self.timer = 0
 
     if CS.out.vEgo > (CS.CP.minSteerSpeed - 0.5):  # for command high bit
-      self.gone_fast_yet = True if self.timer == 75 else False
+      self.gone_fast_yet = True if self.timer == 99 else False
     elif self.car_fingerprint in (CAR.PACIFICA_2019_HYBRID, CAR.JEEP_CHEROKEE_2019):
       if CS.out.vEgo < (CS.CP.minSteerSpeed - 3.0):
         self.gone_fast_yet = False  # < 14.5m/s stock turns off this bit, but fine down to 13.5
-    lkas_active = moving_fast and enabled and (self.timer == 75)
+    lkas_active = moving_fast and enabled and (self.timer == 99)
 
     if not lkas_active:
       apply_steer = 0
