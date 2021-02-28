@@ -44,7 +44,6 @@ def create_lkas_command(packer, apply_steer, enabled, moving_fast, frame):
   values = {
     "LKAS_STEERING_TORQUE": apply_steer,
     "LKAS_HIGH_TORQUE": int(moving_fast & enabled),
-    "LKAS_STEER_TYPE": int(enabled),
     "COUNTER": frame % 0x10,
   }
   return packer.make_can_msg("LKAS_COMMAND", 0, values)
