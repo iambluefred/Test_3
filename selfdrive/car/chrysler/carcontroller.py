@@ -50,7 +50,7 @@ class CarController():
     if not lkas_active:
       apply_steer = 0
 
-
+    self.steer_type = int(1) if enabled and CS.out.vEgo < 18. else int(0)
 
     self.apply_steer_last = apply_steer
 
@@ -69,7 +69,7 @@ class CarController():
       if (CS.lkas_car_model != -1):
         new_msg = create_lkas_hud(
             self.packer, CS.out.gearShifter, lkas_active, hud_alert,
-            self.hud_count, CS.lkas_car_model)
+            self.hud_count, CS.lkas_car_model, self.steer_type)
         can_sends.append(new_msg)
         self.hud_count += 1
 
