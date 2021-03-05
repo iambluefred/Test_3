@@ -43,7 +43,7 @@ def create_lkas_command(packer, apply_steer, enabled, moving_fast, frame):
   # LKAS_COMMAND 0x292 (658) Lane-keeping signal to turn the wheel.
   values = {
     "LKAS_STEERING_TORQUE": apply_steer,
-    "LKAS_HIGH_TORQUE": int(moving_fast & enabled),
+    "LKAS_HIGH_TORQUE": enabled,
     "COUNTER": frame % 0x10,
   }
   return packer.make_can_msg("LKAS_COMMAND", 0, values)
