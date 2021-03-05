@@ -5,7 +5,7 @@ from selfdrive.car import make_can_msg
 GearShifter = car.CarState.GearShifter
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
-def create_lkas_hud(packer, gear, lkas_active, hud_alert, hud_count, lkas_car_model, steer_type):
+def create_lkas_hud(packer, gear, lkas_active, hud_alert, enabled, hud_count, lkas_car_model, steer_type):
   # LKAS_HUD 0x2a6 (678) Controls what lane-keeping icon is displayed.
 
   if hud_alert == VisualAlert.steerRequired:
@@ -17,11 +17,11 @@ def create_lkas_hud(packer, gear, lkas_active, hud_alert, hud_count, lkas_car_mo
   alerts = 0
 
   if hud_count < (1 * 4):  # first 3 seconds, 4Hz
-    alerts = 1
+    alerts = 0
   # CAR.PACIFICA_2018_HYBRID and CAR.PACIFICA_2019_HYBRID
   # had color = 1 and lines = 1 but trying 2017 hybrid style for now.
   if gear in (GearShifter.drive, GearShifter.reverse, GearShifter.low):
-    if lkas_active:
+    if enabled:
       color = 2  # control active, display green.
       lines = 6
     else:
@@ -39,11 +39,11 @@ def create_lkas_hud(packer, gear, lkas_active, hud_alert, hud_count, lkas_car_mo
   return packer.make_can_msg("LKAS_HUD", 0, values)  # 0x2a6
 
 
-def create_lkas_command(packer, apply_steer, enabled, moving_fast, frame):
+def create_lkas_command(packer, apply_steer, lkas_active, frame):
   # LKAS_COMMAND 0x292 (658) Lane-keeping signal to turn the wheel.
   values = {
     "LKAS_STEERING_TORQUE": apply_steer,
-    "LKAS_HIGH_TORQUE": enabled,
+    "LKAS_HIGH_TORQUE": lkas_active,
     "COUNTER": frame % 0x10,
   }
   return packer.make_can_msg("LKAS_COMMAND", 0, values)

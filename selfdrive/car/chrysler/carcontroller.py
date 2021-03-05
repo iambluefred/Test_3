@@ -11,7 +11,6 @@ class CarController():
     self.prev_frame = -1
     self.hud_count = 0
     self.car_fingerprint = CP.carFingerprint
-    self.gone_fast_yet = False
     self.steer_rate_limited = False
     self.timer = 0;
 
@@ -30,8 +29,6 @@ class CarController():
                                                    CS.out.steeringTorqueEps, CarControllerParams)
     self.steer_rate_limited = new_steer != apply_steer
 
-    moving_fast = CS.out.vEgo > CS.CP.minSteerSpeed
-
     if enabled:
       if self.timer < 99:
         self.timer += 1
@@ -40,12 +37,7 @@ class CarController():
     else:
       self.timer = 0
 
-    if CS.out.vEgo > (CS.CP.minSteerSpeed - 0.5):  # for command high bit
-      self.gone_fast_yet = True if self.timer == 99 else False
-    elif self.car_fingerprint in (CAR.PACIFICA_2019_HYBRID, CAR.JEEP_CHEROKEE_2019):
-      if CS.out.vEgo < (CS.CP.minSteerSpeed - 3.0):
-        self.gone_fast_yet = False  # < 14.5m/s stock turns off this bit, but fine down to 13.5
-    lkas_active = moving_fast and enabled and (self.timer == 99)
+    lkas_active = self.timer == 99
 
     if not lkas_active:
       apply_steer = 0
@@ -71,12 +63,12 @@ class CarController():
     if (self.ccframe % 25 == 0):  # 0.25s period
       if (CS.lkas_car_model != -1):
         new_msg = create_lkas_hud(
-            self.packer, CS.out.gearShifter, lkas_active, hud_alert,
+            self.packer, CS.out.gearShifter, lkas_active, hud_alert, enabled,
             self.hud_count, CS.lkas_car_model, self.steer_type)
         can_sends.append(new_msg)
         self.hud_count += 1
 
-    new_msg = create_lkas_command(self.packer, int(apply_steer), enabled, self.gone_fast_yet, frame)
+    new_msg = create_lkas_command(self.packer, int(apply_steer), lkas_active, frame)
     can_sends.append(new_msg)
 
     self.ccframe += 1

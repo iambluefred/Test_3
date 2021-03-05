@@ -69,10 +69,6 @@ class CarInterface(CarInterfaceBase):
     # events
     events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.low],
                                        gas_resume_speed=2.)
-
-    if ret.vEgo < self.CP.minSteerSpeed:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
-
     ret.events = events.to_msg()
 
     # copy back carState packet to CS
