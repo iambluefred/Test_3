@@ -44,7 +44,7 @@ class CarController():
 
     #if enabled and CS.out.vEgo < 18.:
     #  self.steer_type = int(1)
-    if enabled and CS.out.vEgo > 1.1:
+    if 1==1:
       self.steer_type = int(2)
     else:
       self.steer_type = int(0)
