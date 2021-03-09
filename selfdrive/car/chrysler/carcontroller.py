@@ -1,4 +1,4 @@
-from selfdrive.car import apply_toyota_steer_torque_limits
+from selfdrive.car import apply_toyota_steer_torque_limits, apply_std_steer_torque_limits
 from selfdrive.car.chrysler.chryslercan import create_lkas_hud, create_lkas_command, \
                                                create_wheel_buttons
 from selfdrive.car.chrysler.values import CAR, CarControllerParams
@@ -25,12 +25,12 @@ class CarController():
     # *** compute control surfaces ***
     # steer torque
     new_steer = actuators.steer * CarControllerParams.STEER_MAX
-    apply_steer = apply_toyota_steer_torque_limits(new_steer, self.apply_steer_last,
-                                                   CS.out.steeringTorqueEps, CarControllerParams)
+    #apply_steer = apply_toyota_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorqueEps, CarControllerParams)
+    apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorqueEps, CarControllerParams)
     self.steer_rate_limited = new_steer != apply_steer
 
     if enabled:
-      if self.timer < 99:
+      if self.timer < 99 and CS.out.vEgo < 18.:
         self.timer += 1
       else:
         self.timer = 99
@@ -57,9 +57,12 @@ class CarController():
 
    # if pcm_cancel_cmd:
    #   # TODO: would be better to start from frame_2b3
-   #   new_msg = create_wheel_buttons(self.packer, self.ccframe, cancel=True)
+   #   new_msg = create_wheel_buttons(self.packer, cancel=True, resume=False)
    #   can_sends.append(new_msg)
 
+    if enabled and CS.out.standstill and (self.ccframe % 50 == 0):
+        new_msg = create_wheel_buttons(self.packer, cancel=False, resume=True)
+        can_sends.append(new_msg)
     # LKAS_HEARTBIT is forwarded by Panda so no need to send it here.
     # frame is 100Hz (0.01s period)
     if (self.ccframe % 25 == 0):  # 0.25s period
